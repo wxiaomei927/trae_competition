@@ -1,15 +1,17 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 
-interface Entry {
+interface Cell {
   char: string
-  frames: { era: string; type: string; src: string }[]
-  meanings: any[]
-  phonetics: any[]
+  frameCount: number
+  meaningCount: number
+  phoneticCount: number
+  gloss: string
+  modern: string
 }
 
 const props = defineProps<{
-  list: Entry[]
+  list: Cell[]
   current: string
 }>()
 
@@ -18,10 +20,13 @@ const emit = defineEmits<{ (e: 'pick', c: string): void }>()
 const filter = ref<'all' | 'multi' | 'complete'>('all')
 
 const shown = computed(() => {
-  if (filter.value === 'multi') return props.list.filter(c => c.phonetics.length > 1)
-  if (filter.value === 'complete') return props.list.filter(c => c.frames.length >= 4)
+  if (filter.value === 'multi') return props.list.filter(c => c.phoneticCount > 1)
+  if (filter.value === 'complete') return props.list.filter(c => c.frameCount >= 4)
   return props.list
 })
+
+const multiCount = computed(() => props.list.filter(c => c.phoneticCount > 1).length)
+const completeCount = computed(() => props.list.filter(c => c.frameCount >= 4).length)
 </script>
 
 <template>
@@ -31,10 +36,10 @@ const shown = computed(() => {
         全部 {{ list.length }}
       </button>
       <button class="f" :class="{ on: filter === 'multi' }" @click="filter = 'multi'">
-        多音字 {{ list.filter(c => c.phonetics.length > 1).length }}
+        多音字 {{ multiCount }}
       </button>
       <button class="f" :class="{ on: filter === 'complete' }" @click="filter = 'complete'">
-        帧数齐全 {{ list.filter(c => c.frames.length >= 4).length }}
+        帧数齐全 {{ completeCount }}
       </button>
     </div>
 
@@ -43,15 +48,15 @@ const shown = computed(() => {
         v-for="c in shown"
         :key="c.char"
         class="cell"
-        :class="{ cur: c.char === current, warn: c.frames.length < 4 }"
+        :class="{ cur: c.char === current, warn: c.frameCount < 4 }"
         @click="emit('pick', c.char)"
       >
         <span class="cell-char">{{ c.char }}</span>
-        <span class="cell-gloss">{{ c.meanings[0]?.gloss ?? '' }}</span>
+        <span class="cell-gloss">{{ c.gloss }}</span>
         <span class="cell-foot">
-          <i v-if="c.phonetics.length > 1" class="tag multi">{{ c.phonetics.length }} 音</i>
-          <i class="tag">{{ c.meanings.length }} 义</i>
-          <i v-if="c.frames.length < 4" class="tag warn">{{ c.frames.length }} 帧</i>
+          <i v-if="c.phoneticCount > 1" class="tag multi">{{ c.phoneticCount }} 音</i>
+          <i class="tag">{{ c.meaningCount }} 义</i>
+          <i v-if="c.frameCount < 4" class="tag warn">{{ c.frameCount }} 帧</i>
         </span>
       </button>
     </div>

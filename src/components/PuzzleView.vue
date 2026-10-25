@@ -1,26 +1,35 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 
-interface Entry {
-  char: string
-  frames: { era: string; type: string; src: string }[]
-  meanings: any[]
-  phonetics: any[]
+interface IndexItem {
+  id: string
+  file: string
+  frames: number
+  meanings: number
+  phonetics: number
+  gloss: string
+  modern: string
 }
 
-const props = defineProps<{ list: Entry[] }>()
+const props = defineProps<{ index: Record<string, IndexItem> }>()
 const emit = defineEmits<{ (e: 'close'): void; (e: 'pick', c: string): void }>()
 
 const round = ref(0)
-const target = ref<Entry | null>(null)
-const options = ref<Entry[]>([])
+const target = ref<string>('')
+const options = ref<string[]>([])
 const answered = ref(false)
-const picked = ref<string>('')
+const picked = ref('')
 const score = ref(0)
 const streak = ref(0)
+const hint = ref('')
+const glyphSrc = ref('')
+const gloss = ref('')
 
-/** 可用题库：帧数 ≥3 的字 */
-const pool = computed(() => props.list.filter(c => c.frames.length >= 3))
+const pool = computed(() =>
+  Object.entries(props.index)
+    .filter(([, m]) => m.frames >= 3)
+    .map(([c]) => c)
+)
 
 function shuffle<T>(arr: T[]): T[] {
   const a = [...arr]
@@ -31,22 +40,30 @@ function shuffle<T>(arr: T[]): T[] {
   return a
 }
 
-function nextQuestion() {
+async function nextQuestion() {
   answered.value = false
   picked.value = ''
+  hint.value = ''
+  gloss.value = ''
   if (!pool.value.length) return
   const t = pool.value[Math.floor(Math.random() * pool.value.length)]
   target.value = t
-  const others = shuffle(pool.value.filter(c => c.char !== t.char)).slice(0, 3)
+  const others = shuffle(pool.value.filter(c => c !== t)).slice(0, 3)
   options.value = shuffle([t, ...others])
   round.value++
+
+  const meta = props.index[t]
+  const mod = await import(`../data/chars/${meta.file}.json`)
+  const entry = mod.default as any
+  glyphSrc.value = entry.frames[0]?.src ?? ''
+  gloss.value = entry.meanings[0]?.gloss ?? ''
 }
 
-function choose(c: Entry) {
+function choose(c: string) {
   if (answered.value) return
-  picked.value = c.char
+  picked.value = c
   answered.value = true
-  if (c.char === target.value?.char) {
+  if (c === target.value) {
     score.value++
     streak.value++
   } else {
@@ -55,14 +72,8 @@ function choose(c: Entry) {
 }
 
 function useHint() {
-  if (!target.value) return
-  const m = target.value.meanings[0]
-  if (m) {
-    hint.value = `本义：${m.gloss}`
-  }
+  if (gloss.value) hint.value = `本义：${gloss.value}`
 }
-
-const hint = ref('')
 
 nextQuestion()
 </script>
@@ -85,8 +96,8 @@ nextQuestion()
 
       <div class="pz-body">
         <div class="pz-stage">
-          <div class="pz-glyph" v-if="target">
-            <img :src="target.frames[0].src" alt="字形" />
+          <div class="pz-glyph">
+            <img v-if="glyphSrc" :src="glyphSrc" alt="字形" />
           </div>
           <p class="pz-era">甲骨文</p>
         </div>
@@ -95,16 +106,16 @@ nextQuestion()
           <div class="pz-opts">
             <button
               v-for="o in options"
-              :key="o.char"
+              :key="o"
               class="opt"
               :class="{
-                right: answered && o.char === target?.char,
-                wrong: answered && o.char === picked && o.char !== target?.char,
-                dim: answered && o.char !== target?.char && o.char !== picked,
+                right: answered && o === target,
+                wrong: answered && o === picked && o !== target,
+                dim: answered && o !== target && o !== picked,
               }"
               @click="choose(o)"
             >
-              {{ o.char }}
+              {{ o }}
             </button>
           </div>
 
@@ -116,9 +127,9 @@ nextQuestion()
           </div>
 
           <p class="pz-note" v-if="answered">
-            <template v-if="picked === target?.char">对了。这个字{{ target?.meanings[0]?.gloss }}。</template>
-            <template v-else>正确答案是「{{ target?.char }}」——{{ target?.meanings[0]?.gloss }}。</template>
-            <button class="link" @click="emit('pick', target!.char); emit('close')">查看字源卡 →</button>
+            <template v-if="picked === target">对了。这个字{{ gloss }}。</template>
+            <template v-else>正确答案是「{{ target }}」——{{ gloss }}。</template>
+            <button class="link" @click="emit('pick', target); emit('close')">查看字源卡 →</button>
           </p>
         </div>
       </div>

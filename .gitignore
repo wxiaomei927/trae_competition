@@ -7,3 +7,5 @@ node_modules
 .DS_Store
 shot*.png
 .vite/
+src/data/chars/
+src/data/characters.json

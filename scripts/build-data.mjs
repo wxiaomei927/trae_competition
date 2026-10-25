@@ -7,7 +7,7 @@ const ROOT = path.resolve(__dirname, '..')
 
 const PACK = 'D:/竞赛/Trae/“AI x 文学”数据包/“AI x 文学”数据包/题四_字源_一个汉字的形音义溯源/【发放给参赛队伍】汉字形音义溯源数据包'
 const IMG = path.join(PACK, 'glyph_evolution', 'images')
-const PUBLIC_GLYPH = path.join(ROOT, 'public', 'glyphs')
+const PUBLIC_GLYPH = path.join(ROOT, 'public', 'g')
 
 function parseCSV(text) {
   const rows = []
@@ -48,6 +48,20 @@ const ERA_ORDER = [
 const chars = fs.existsSync(IMG) ? fs.readdirSync(IMG) : []
 const result = {}
 
+/** 中文目录名与中文文件名在部分托管环境会 403。
+ *  直接把 SVG 内联为 data URI，彻底不依赖任何外部路径规则。*/
+const ERA_SLUG = { 甲骨文: 'oracle', 金文: 'bronze', 小篆: 'seal', 隶书: 'clerical', 楷书: 'regular' }
+
+/** 中文转 ASCII 标识（UTF-8 十六进制），用于扁平化文件名 */
+function asciiId(str) {
+  return Buffer.from(str, 'utf8').toString('hex').match(/.{1,12}/g).join('-')
+}
+
+function toDataUri(filePath, mime) {
+  const buf = fs.readFileSync(filePath)
+  return `data:${mime};base64,${buf.toString('base64')}`
+}
+
 for (const dir of chars) {
   const dirPath = path.join(IMG, dir)
   if (!fs.statSync(dirPath).isDirectory()) continue
@@ -57,11 +71,19 @@ for (const dir of chars) {
     const src = path.join(dirPath, file)
     if (!fs.existsSync(src)) continue
     const ext = path.extname(file).slice(1)
-    const outName = `${dir}/${file}`
-    const dest = path.join(PUBLIC_GLYPH, outName)
-    fs.mkdirSync(path.dirname(dest), { recursive: true })
-    fs.copyFileSync(src, dest)
-    frames.push({ era, type: ext, src: `/glyphs/${outName}` })
+    // 全部内联，零外部请求：
+    //   SVG 直接 URL 编码（比 base64 小约 25%）
+    //   PNG 包一层 SVG <image>，base64 内嵌
+    if (ext === 'svg') {
+      const raw = fs.readFileSync(src, 'utf8')
+      const encoded = encodeURIComponent(raw).replace(/'/g, '%27').replace(/"/g, '%22')
+      frames.push({ era, type: 'svg', src: `data:image/svg+xml;charset=utf-8,${encoded}` })
+    } else {
+      const b64 = fs.readFileSync(src).toString('base64')
+      const wrapper = `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 300 300"><image width="300" height="300" href="data:image/png;base64,${b64}"/></svg>`
+      const encoded = encodeURIComponent(wrapper).replace(/'/g, '%27').replace(/"/g, '%22')
+      frames.push({ era, type: 'svg', src: `data:image/svg+xml;charset=utf-8,${encoded}` })
+    }
   }
   if (!frames.length) continue
 

@@ -6,12 +6,12 @@ import InfoPanel from './components/InfoPanel.vue'
 import OriginCard from './components/OriginCard.vue'
 import GlyphGrid from './components/GlyphGrid.vue'
 import PuzzleView from './components/PuzzleView.vue'
-import charactersData from './data/characters.json'
+import charsIndex from './data/chars-index.json'
 import analysisData from './data/char_analysis.json'
 
 interface GlyphFrame {
   era: string
-  type: 'svg' | 'png'
+  type: string
   src: string
 }
 
@@ -22,8 +22,30 @@ interface CharEntry {
   phonetics: any[]
 }
 
-const all = charactersData as unknown as Record<string, CharEntry>
-const list = Object.values(all)
+interface IndexItem {
+  id: string
+  file: string
+  frames: number
+  meanings: number
+  phonetics: number
+  gloss: string
+  modern: string
+}
+
+const index = charsIndex as unknown as Record<string, IndexItem>
+
+/** 字表总览用的轻量列表 */
+const list = Object.entries(index).map(([char, meta]) => ({
+  char,
+  frames: new Array(meta.frames).fill(0).map((_, i) => ({ era: '', type: 'svg', src: '' })),
+  frameCount: meta.frames,
+  meanings: new Array(meta.meanings).fill(0).map(() => ({ gloss: '' })),
+  meaningCount: meta.meanings,
+  phonetics: new Array(meta.phonetics).fill(0).map(() => ({})),
+  phoneticCount: meta.phonetics,
+  gloss: meta.gloss,
+  modern: meta.modern,
+}))
 
 const currentChar = ref('人')
 const frameIndex = ref(0)
@@ -34,17 +56,32 @@ const keyword = ref('')
 const batch = ref<string[]>([])
 const view = ref<'detail' | 'grid'>('detail')
 
-const entry = computed<CharEntry>(() => all[currentChar.value] ?? list[0])
+const entry = ref<CharEntry | null>(null)
+const loading = ref(false)
+
 const analysis = computed(() => (analysisData as any)[currentChar.value] ?? undefined)
 
 const results = computed(() => {
   const k = keyword.value.trim()
   if (!k) return []
-  return list.filter(c => c.char.includes(k)).slice(0, 12)
+  return Object.entries(index)
+    .filter(([c]) => c.includes(k))
+    .slice(0, 12)
+    .map(([c, m]) => ({ char: c, gloss: m.gloss, frames: m.frames }))
 })
 
-const totalMeanings = list.reduce((n, c) => n + c.meanings.length, 0)
-const totalPhonetics = list.reduce((n, c) => n + c.phonetics.length, 0)
+/** 按需加载该字的完整数据 */
+async function loadChar(char: string) {
+  const meta = index[char]
+  if (!meta) return
+  loading.value = true
+  try {
+    const mod = await import(`./data/chars/${meta.file}.json`)
+    entry.value = mod.default as CharEntry
+  } finally {
+    loading.value = false
+  }
+}
 
 function pick(c: string) {
   currentChar.value = c
@@ -52,9 +89,14 @@ function pick(c: string) {
   view.value = 'detail'
 }
 
-watch(currentChar, () => {
-  frameIndex.value = 0
-})
+watch(
+  currentChar,
+  c => {
+    frameIndex.value = 0
+    loadChar(c)
+  },
+  { immediate: true }
+)
 
 function toggleBatch(c: string) {
   const i = batch.value.indexOf(c)
@@ -62,17 +104,20 @@ function toggleBatch(c: string) {
   else if (batch.value.length < 10) batch.value.push(c)
 }
 
-function exportBatch() {
+async function exportBatch() {
   const chars = batch.value
   if (!chars.length) return
-  const lines = chars.map(c => {
-    const e = all[c]
-    const m = e.meanings[0]
-    const p = e.phonetics[0]
+  const blocks: string[] = []
+  for (const c of chars) {
+    const meta = index[c]
+    const mod = await import(`./data/chars/${meta.file}.json`)
+    const e = mod.default as CharEntry
     const a = (analysisData as any)[c]
-    return `【${c}】${p?.modern ?? ''}　${a?.method ?? ''}\n　${m?.gloss ?? ''}\n　义项${e.meanings.length}条 · 读音${e.phonetics.length}个\n　${a?.analysis ?? ''}`
-  })
-  const text = `字源卡 · 生词本（${chars.length} 字）\n${'—'.repeat(26)}\n\n${lines.join('\n\n')}\n\n由「字源 · 汉字形音义溯源」生成\n字形与书证取自公有领域文献　AI 生成内容已标注`
+    blocks.push(
+      `【${c}】${e.phonetics[0]?.modern ?? ''}　${a?.method ?? ''}\n　${e.meanings[0]?.gloss ?? ''}\n　义项${e.meanings.length}条 · 读音${e.phonetics.length}个\n　${a?.analysis ?? ''}`
+    )
+  }
+  const text = `字源卡 · 生词本（${chars.length} 字）\n${'—'.repeat(26)}\n\n${blocks.join('\n\n')}\n\n由「字源 · 汉字形音义溯源」生成\n字形与书证取自公有领域文献　AI 生成内容已标注`
   const blob = new Blob([text], { type: 'text/plain;charset=utf-8' })
   const a = document.createElement('a')
   a.href = URL.createObjectURL(blob)
@@ -103,8 +148,8 @@ function exportBatch() {
         <div class="dropdown" v-if="results.length">
           <button v-for="r in results" :key="r.char" class="drop-item" @click="pick(r.char)">
             <span class="drop-char">{{ r.char }}</span>
-            <span class="drop-gloss">{{ r.meanings[0]?.gloss ?? '' }}</span>
-            <span class="drop-era">{{ r.frames.length }} 帧</span>
+            <span class="drop-gloss">{{ r.gloss }}</span>
+            <span class="drop-era">{{ r.frames }} 帧</span>
           </button>
         </div>
       </div>
@@ -124,27 +169,37 @@ function exportBatch() {
         <div class="ov-head">
           <h2 class="ov-title">字表</h2>
           <p class="ov-sub">
-            {{ list.length }} 字 · {{ totalMeanings }} 条义项 · {{ totalPhonetics }} 个读音 ·
+            {{ list.length }} 字 ·
+            {{ list.reduce((n, c) => n + c.meaningCount, 0) }} 条义项 ·
+            {{ list.reduce((n, c) => n + c.phoneticCount, 0) }} 个读音 ·
             覆盖甲骨文至楷书的字形演变
           </p>
         </div>
-        <GlyphGrid :list="list" :current="currentChar" @pick="pick" />
+        <GlyphGrid :list="list as any" :current="currentChar" @pick="pick" />
       </section>
 
       <template v-else>
         <section class="left">
           <div class="prologue">
-            <span class="prologue-era">{{ entry.frames[frameIndex]?.era ?? '' }}</span>
+            <span class="prologue-era">{{ entry?.frames[frameIndex]?.era ?? '' }}</span>
             <p class="prologue-text">拖动下方时间轴，看这个字从甲骨文长成楷书</p>
           </div>
 
-          <GlyphTunnel v-model="frameIndex" :frames="entry.frames" />
+          <div class="tunnel-wrap" :class="{ loading }">
+            <GlyphTunnel
+              v-if="entry"
+              v-model="frameIndex"
+              :frames="entry.frames"
+            />
+            <div class="loading-mark" v-if="loading">取字中…</div>
+          </div>
         </section>
 
         <div class="divider"></div>
 
         <section class="right">
           <InfoPanel
+            v-if="entry"
             :char="entry.char"
             :meanings="entry.meanings"
             :phonetics="entry.phonetics"
@@ -155,7 +210,7 @@ function exportBatch() {
     </main>
 
     <OriginCard
-      v-if="showCard"
+      v-if="showCard && entry"
       :char="entry.char"
       :frames="entry.frames"
       :meanings="entry.meanings"
@@ -164,7 +219,12 @@ function exportBatch() {
       @close="showCard = false"
     />
 
-    <PuzzleView v-if="showPuzzle" :list="list" @close="showPuzzle = false" @pick="pick" />
+    <PuzzleView
+      v-if="showPuzzle"
+      :index="index as any"
+      @close="showPuzzle = false"
+      @pick="pick"
+    />
 
     <div class="modal-mask" v-if="showBatch" @click.self="showBatch = false">
       <div class="modal">
@@ -172,13 +232,13 @@ function exportBatch() {
         <p class="modal-tip">勾选要批量出卡的字，最多 10 个</p>
         <div class="batch-grid">
           <button
-            v-for="c in list"
-            :key="c.char"
+            v-for="(meta, c) in index"
+            :key="c"
             class="batch-item"
-            :class="{ on: batch.includes(c.char) }"
-            @click="toggleBatch(c.char)"
+            :class="{ on: batch.includes(c as string) }"
+            @click="toggleBatch(c as string)"
           >
-            {{ c.char }}
+            {{ c }}
           </button>
         </div>
         <div class="modal-foot">
@@ -357,6 +417,27 @@ function exportBatch() {
   flex: 1;
   min-width: 0;
   position: relative;
+}
+
+.tunnel-wrap {
+  height: 100%;
+  position: relative;
+  transition: opacity 0.3s ease;
+}
+
+.tunnel-wrap.loading {
+  opacity: 0.45;
+}
+
+.loading-mark {
+  position: absolute;
+  left: 50%;
+  top: 44%;
+  transform: translate(-50%, -50%);
+  font-family: var(--font-title);
+  font-size: 15px;
+  color: var(--ink-faint);
+  letter-spacing: 0.2em;
 }
 
 .prologue {
