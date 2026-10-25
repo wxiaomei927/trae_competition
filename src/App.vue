@@ -4,6 +4,8 @@ import InkBackdrop from './components/InkBackdrop.vue'
 import GlyphTunnel from './components/GlyphTunnel.vue'
 import InfoPanel from './components/InfoPanel.vue'
 import OriginCard from './components/OriginCard.vue'
+import GlyphGrid from './components/GlyphGrid.vue'
+import PuzzleView from './components/PuzzleView.vue'
 import charactersData from './data/characters.json'
 import analysisData from './data/char_analysis.json'
 
@@ -27,8 +29,10 @@ const currentChar = ref('人')
 const frameIndex = ref(0)
 const showCard = ref(false)
 const showBatch = ref(false)
+const showPuzzle = ref(false)
 const keyword = ref('')
 const batch = ref<string[]>([])
+const view = ref<'detail' | 'grid'>('detail')
 
 const entry = computed<CharEntry>(() => all[currentChar.value] ?? list[0])
 const analysis = computed(() => (analysisData as any)[currentChar.value] ?? undefined)
@@ -39,9 +43,13 @@ const results = computed(() => {
   return list.filter(c => c.char.includes(k)).slice(0, 12)
 })
 
+const totalMeanings = list.reduce((n, c) => n + c.meanings.length, 0)
+const totalPhonetics = list.reduce((n, c) => n + c.phonetics.length, 0)
+
 function pick(c: string) {
   currentChar.value = c
   keyword.value = ''
+  view.value = 'detail'
 }
 
 watch(currentChar, () => {
@@ -61,9 +69,10 @@ function exportBatch() {
     const e = all[c]
     const m = e.meanings[0]
     const p = e.phonetics[0]
-    return `【${c}】${p?.modern ?? ''}　${m?.gloss ?? ''}\n　义项${e.meanings.length}条 · 读音${e.phonetics.length}个`
+    const a = (analysisData as any)[c]
+    return `【${c}】${p?.modern ?? ''}　${a?.method ?? ''}\n　${m?.gloss ?? ''}\n　义项${e.meanings.length}条 · 读音${e.phonetics.length}个\n　${a?.analysis ?? ''}`
   })
-  const text = `汉字字源卡 · 生词本（${chars.length} 字）\n${'—'.repeat(24)}\n\n${lines.join('\n\n')}\n\n由「字源卡」生成`
+  const text = `字源卡 · 生词本（${chars.length} 字）\n${'—'.repeat(26)}\n\n${lines.join('\n\n')}\n\n由「字源 · 汉字形音义溯源」生成\n字形与书证取自公有领域文献　AI 生成内容已标注`
   const blob = new Blob([text], { type: 'text/plain;charset=utf-8' })
   const a = document.createElement('a')
   a.href = URL.createObjectURL(blob)
@@ -78,7 +87,7 @@ function exportBatch() {
     <InkBackdrop />
 
     <header class="topbar">
-      <div class="brand">
+      <div class="brand" @click="view = 'detail'">
         <span class="brand-char">字源</span>
         <span class="brand-sub">汉字形音义溯源</span>
       </div>
@@ -87,7 +96,7 @@ function exportBatch() {
         <input
           v-model="keyword"
           type="text"
-          placeholder="输入汉字"
+          placeholder="输入汉字，如 日、水、行"
           class="search-input"
           spellcheck="false"
         />
@@ -95,31 +104,54 @@ function exportBatch() {
           <button v-for="r in results" :key="r.char" class="drop-item" @click="pick(r.char)">
             <span class="drop-char">{{ r.char }}</span>
             <span class="drop-gloss">{{ r.meanings[0]?.gloss ?? '' }}</span>
+            <span class="drop-era">{{ r.frames.length }} 帧</span>
           </button>
         </div>
       </div>
 
       <nav class="tools">
+        <button class="tool" :class="{ on: view === 'grid' }" @click="view = view === 'grid' ? 'detail' : 'grid'">
+          {{ view === 'grid' ? '详情' : '字表' }}
+        </button>
+        <button class="tool" @click="showPuzzle = true">猜字</button>
         <button class="tool" @click="showBatch = true">生词本</button>
-        <button class="tool" @click="showCard = true">字源卡</button>
+        <button class="tool primary" @click="showCard = true">字源卡</button>
       </nav>
     </header>
 
     <main class="stage">
-      <section class="left">
-        <GlyphTunnel v-model="frameIndex" :frames="entry.frames" />
+      <section class="overview" v-if="view === 'grid'">
+        <div class="ov-head">
+          <h2 class="ov-title">字表</h2>
+          <p class="ov-sub">
+            {{ list.length }} 字 · {{ totalMeanings }} 条义项 · {{ totalPhonetics }} 个读音 ·
+            覆盖甲骨文至楷书的字形演变
+          </p>
+        </div>
+        <GlyphGrid :list="list" :current="currentChar" @pick="pick" />
       </section>
 
-      <div class="divider"></div>
+      <template v-else>
+        <section class="left">
+          <div class="prologue">
+            <span class="prologue-era">{{ entry.frames[frameIndex]?.era ?? '' }}</span>
+            <p class="prologue-text">拖动下方时间轴，看这个字从甲骨文长成楷书</p>
+          </div>
 
-      <section class="right">
-        <InfoPanel
-          :char="entry.char"
-          :meanings="entry.meanings"
-          :phonetics="entry.phonetics"
-          :analysis="analysis"
-        />
-      </section>
+          <GlyphTunnel v-model="frameIndex" :frames="entry.frames" />
+        </section>
+
+        <div class="divider"></div>
+
+        <section class="right">
+          <InfoPanel
+            :char="entry.char"
+            :meanings="entry.meanings"
+            :phonetics="entry.phonetics"
+            :analysis="analysis"
+          />
+        </section>
+      </template>
     </main>
 
     <OriginCard
@@ -131,6 +163,8 @@ function exportBatch() {
       :analysis="analysis"
       @close="showCard = false"
     />
+
+    <PuzzleView v-if="showPuzzle" :list="list" @close="showPuzzle = false" @pick="pick" />
 
     <div class="modal-mask" v-if="showBatch" @click.self="showBatch = false">
       <div class="modal">
@@ -165,11 +199,11 @@ function exportBatch() {
 
 .topbar {
   flex-shrink: 0;
-  height: 66px;
+  height: 64px;
   display: flex;
   align-items: center;
-  gap: 26px;
-  padding: 0 30px;
+  gap: 24px;
+  padding: 0 28px;
   border-bottom: 1px solid var(--line-soft);
   position: relative;
   z-index: 300;
@@ -178,18 +212,19 @@ function exportBatch() {
 .brand {
   display: flex;
   align-items: baseline;
-  gap: 13px;
+  gap: 12px;
+  cursor: pointer;
 }
 
 .brand-char {
   font-family: var(--font-title);
-  font-size: 27px;
+  font-size: 26px;
   letter-spacing: 0.24em;
   color: var(--ink);
 }
 
 .brand-sub {
-  font-size: 13.5px;
+  font-size: 13px;
   color: var(--ink-faint);
   letter-spacing: 0.18em;
 }
@@ -197,16 +232,16 @@ function exportBatch() {
 .search {
   position: relative;
   flex: 1;
-  max-width: 340px;
+  max-width: 320px;
 }
 
 .search-input {
   width: 100%;
-  padding: 8px 14px;
+  padding: 8px 13px;
   border: 1px solid var(--line);
   border-radius: 2px;
   background: rgba(250, 246, 238, 0.6);
-  font-size: 15.5px;
+  font-size: 15px;
   transition: border-color 0.3s ease;
 }
 
@@ -216,7 +251,7 @@ function exportBatch() {
 
 .search-input::placeholder {
   color: var(--ink-ghost);
-  font-size: 14.5px;
+  font-size: 14px;
 }
 
 .dropdown {
@@ -235,9 +270,9 @@ function exportBatch() {
 .drop-item {
   display: flex;
   align-items: baseline;
-  gap: 12px;
+  gap: 11px;
   width: 100%;
-  padding: 9px 14px;
+  padding: 8px 13px;
   text-align: left;
   border-bottom: 1px solid var(--line-soft);
 }
@@ -252,40 +287,64 @@ function exportBatch() {
 
 .drop-char {
   font-family: var(--font-title);
-  font-size: 21px;
+  font-size: 20px;
   color: var(--ink);
   flex-shrink: 0;
 }
 
 .drop-gloss {
-  font-size: 13.5px;
+  font-size: 13px;
   color: var(--ink-faint);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  flex: 1;
+}
+
+.drop-era {
+  font-size: 11.5px;
+  color: var(--ink-ghost);
+  flex-shrink: 0;
 }
 
 .tools {
   margin-left: auto;
   display: flex;
-  gap: 9px;
+  gap: 7px;
 }
 
 .tool {
   font-family: var(--font-title);
-  font-size: 15px;
-  letter-spacing: 0.14em;
+  font-size: 14.5px;
+  letter-spacing: 0.12em;
   color: var(--ink-soft);
   border: 1px solid var(--line);
-  padding: 7px 17px;
+  padding: 6px 15px;
   border-radius: 2px;
-  transition: all 0.3s ease;
+  transition: all 0.28s ease;
 }
 
 .tool:hover {
   color: var(--cinnabar);
   border-color: rgba(180, 67, 47, 0.42);
   background: rgba(180, 67, 47, 0.04);
+}
+
+.tool.on {
+  color: var(--paper-light);
+  background: var(--ink);
+  border-color: var(--ink);
+}
+
+.tool.primary {
+  color: var(--paper-light);
+  background: var(--cinnabar);
+  border-color: var(--cinnabar);
+}
+
+.tool.primary:hover {
+  opacity: 0.88;
+  color: var(--paper-light);
 }
 
 .stage {
@@ -300,20 +359,73 @@ function exportBatch() {
   position: relative;
 }
 
+.prologue {
+  position: absolute;
+  left: 30px;
+  top: 26px;
+  z-index: 210;
+  pointer-events: none;
+  max-width: 260px;
+}
+
+.prologue-era {
+  display: inline-block;
+  font-family: var(--font-title);
+  font-size: 12.5px;
+  letter-spacing: 0.26em;
+  color: var(--cinnabar);
+  border: 1px solid rgba(180, 67, 47, 0.28);
+  padding: 2px 9px 2px 11px;
+  margin-bottom: 8px;
+}
+
+.prologue-text {
+  font-family: var(--font-title);
+  font-size: 15px;
+  color: var(--ink-faint);
+  letter-spacing: 0.05em;
+  line-height: 1.75;
+}
+
 .divider {
   width: 1px;
   background: linear-gradient(to bottom, transparent, var(--line) 15%, var(--line) 85%, transparent);
 }
 
 .right {
-  width: 430px;
+  width: 424px;
   flex-shrink: 0;
+}
+
+.overview {
+  flex: 1;
+  overflow-y: auto;
+  padding: 34px 40px 60px;
+}
+
+.ov-head {
+  margin-bottom: 26px;
+}
+
+.ov-title {
+  font-family: var(--font-title);
+  font-size: 26px;
+  font-weight: 400;
+  letter-spacing: 0.2em;
+  color: var(--ink);
+  margin-bottom: 8px;
+}
+
+.ov-sub {
+  font-size: 14px;
+  color: var(--ink-faint);
+  letter-spacing: 0.04em;
 }
 
 .modal-mask {
   position: fixed;
   inset: 0;
-  background: rgba(35, 32, 28, 0.28);
+  background: rgba(35, 32, 28, 0.3);
   backdrop-filter: blur(3px);
   display: grid;
   place-items: center;

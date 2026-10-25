@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 
 export interface Meaning {
   seq: number
@@ -32,6 +32,7 @@ export interface Analysis {
   narration: string
   narrationSeconds: number
   lifeExamples: { text: string; tip: string }[]
+  auto?: boolean
 }
 
 const props = defineProps<{
@@ -52,6 +53,37 @@ const toneName = computed(() => {
   const t = props.phonetics[0]?.tone ?? ''
   return map[t] ?? t
 })
+
+/* ---- 朗读与复制 ---- */
+const speaking = ref(false)
+const copied = ref(false)
+
+function speak() {
+  if (!props.analysis?.narration) return
+  if (speaking.value) {
+    window.speechSynthesis?.cancel()
+    speaking.value = false
+    return
+  }
+  const u = new SpeechSynthesisUtterance(props.analysis.narration)
+  u.lang = 'zh-CN'
+  u.rate = 0.95
+  u.onend = () => (speaking.value = false)
+  u.onerror = () => (speaking.value = false)
+  window.speechSynthesis?.speak(u)
+  speaking.value = true
+}
+
+async function copyNarration() {
+  if (!props.analysis?.narration) return
+  try {
+    await navigator.clipboard.writeText(props.analysis.narration)
+    copied.value = true
+    setTimeout(() => (copied.value = false), 1800)
+  } catch {
+    copied.value = false
+  }
+}
 </script>
 
 <template>
@@ -140,8 +172,17 @@ const toneName = computed(() => {
           <p class="narr-text">{{ analysis.narration }}</p>
           <div class="narr-foot">
             <span class="narr-sec">{{ analysis.narrationSeconds }} 秒</span>
-            <span class="ai-tag">AI 生成</span>
+            <span class="narr-ops">
+              <button class="narr-btn" :class="{ on: speaking }" @click="speak">
+                {{ speaking ? '停止' : '朗读' }}
+              </button>
+              <button class="narr-btn" @click="copyNarration">{{ copied ? '已复制' : '复制' }}</button>
+              <span class="ai-tag">AI 生成</span>
+            </span>
           </div>
+          <p class="narr-src" v-if="analysis.auto">
+            本条由字义数据自动生成，构形细节待人工校订
+          </p>
         </div>
       </section>
 
@@ -503,6 +544,38 @@ const toneName = computed(() => {
   border: 1px solid rgba(180, 67, 47, 0.34);
   padding: 1px 7px;
   letter-spacing: 0.1em;
+}
+
+.narr-ops {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.narr-btn {
+  font-size: 12.5px;
+  color: var(--ink-faint);
+  border: 1px solid var(--line);
+  padding: 2px 9px;
+  transition: all 0.24s ease;
+}
+
+.narr-btn:hover {
+  color: var(--cinnabar);
+  border-color: rgba(180, 67, 47, 0.4);
+}
+
+.narr-btn.on {
+  color: var(--paper-light);
+  background: var(--cinnabar);
+  border-color: var(--cinnabar);
+}
+
+.narr-src {
+  margin-top: 9px;
+  font-size: 12px;
+  color: var(--ink-ghost);
+  line-height: 1.6;
 }
 
 /* 例句 */
