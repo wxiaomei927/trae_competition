@@ -81,7 +81,7 @@ async function exportCard() {
 
 .act {
   font-family: var(--font-title);
-  font-size: 15px;
+  font-size: 19.5px;
   letter-spacing: 0.14em;
   color: var(--ink-soft);
   background: var(--paper-light);

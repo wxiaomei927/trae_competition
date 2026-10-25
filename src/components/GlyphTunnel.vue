@@ -14,9 +14,9 @@ const props = defineProps<{
 
 const emit = defineEmits<{ (e: 'update:modelValue', v: number): void }>()
 
-const DEPTH = 340          // 相邻帧 Z 轴间距
+const DEPTH = 400          // 相邻帧 Z 轴间距
 const BASE_Z = 150         // 当前帧 Z 基准
-const ARC = 186            // 横向展开量
+const ARC = 168            // 横向展开量
 const PERSPECTIVE = 1500   // 与 CSS perspective 保持一致
 
 const pointer = ref({ x: 0, y: 0 })
@@ -30,20 +30,32 @@ const placed = computed(() => {
     const off = i - props.modelValue
     const depth = Math.abs(off)
     const z = BASE_Z - depth * DEPTH
-    // 期望屏幕位置：以链条重心为基准，当前帧随时间轴移动
-    const wantX = (off - meanOff) * ARC
+    // 期望屏幕位置：当前帧恒在中央，前后朝代向两侧对称展开。
+    // 另加链条平衡偏移：让整条演变链的视觉重心也落在画面中心，
+    // 避免当前帧位于序列首尾时，链条整体偏向一侧。
+    const wantX = off * ARC + (props.modelValue - (props.frames.length - 1) / 2) * ARC * 0.85
     // 透视反向补偿：CSS 透视会把远处元素拉向中心，需反解 3D 坐标
-    const x = wantX * ((PERSPECTIVE - z) / PERSPECTIVE)
+    // 透视反解：屏幕位置 = x3d * P/(P-z)，要屏幕落在 wantX，
+    // 则 x3d = wantX * (P-z)/P。当前帧 z 恒为 BASE_Z，
+    // 以它的缩放比 (P-BASE_Z)/P 为基准做归一化，
+    // 各帧相对当前帧的横向比例才正确。
+    const kCur = (PERSPECTIVE - BASE_Z) / PERSPECTIVE
+    const k = (PERSPECTIVE - z) / PERSPECTIVE
+    const x = wantX * (k / kCur) * kCur
+    // 透视会把远处元素"提"离中心，且偏移量与深度成正比。
+    // 这里反向补偿 Y，使整条演变链保持水平、不向上倾斜。
+    const y = depth * 26 - 28
     return {
       ...f,
       index: i,
       off,
       z,
       x,
+      y,
       scale: Math.max(0.36, 1 - depth * 0.17),
       opacity: Math.max(0.2, 1 - depth * 0.2),
       blur: Math.min(depth * 1.0, 4),
-      rotateY: -(off - meanOff) * 12 + pointer.value.x * 7,
+      rotateY: -off * 12 + pointer.value.x * 7,
       rotateX: pointer.value.y * -4,
       glow: off === 0 ? 1 : 0,
       isCurrent: off === 0,
@@ -115,7 +127,7 @@ watch(
         class="glyph-node"
         :class="{ current: p.isCurrent, past: p.isPast }"
         :style="{
-          transform: `translate3d(${p.x}px, -50%, ${p.z}px) rotateY(${p.rotateY}deg) rotateX(${p.rotateX}deg) scale(${p.scale})`,
+          transform: `translate3d(calc(-50% + ${p.x}px), calc(-50% + ${p.y}px), ${p.z}px) rotateY(${p.rotateY}deg) rotateX(${p.rotateX}deg) scale(${p.scale})`,
           opacity: p.opacity,
           filter: `blur(${p.blur}px) drop-shadow(0 ${p.glow * 12}px ${p.glow * 30}px rgba(180, 67, 47, ${p.glow * 0.32}))`,
           zIndex: 100 - Math.round(Math.abs(p.off) * 10),
@@ -168,7 +180,7 @@ watch(
   height: 100%;
   outline: none;
   perspective: 1500px;
-  perspective-origin: 50% 46%;
+  perspective-origin: 50% 56%;
 }
 
 .tunnel-scene {
@@ -181,7 +193,7 @@ watch(
 .halo {
   position: absolute;
   left: 50%;
-  top: 44%;
+  top: 50%;
   width: 620px;
   height: 620px;
   border-radius: 50%;
@@ -200,10 +212,9 @@ watch(
 .glyph-node {
   position: absolute;
   left: 50%;
-  top: 44%;
-  width: 268px;
-  height: 336px;
-  margin: -168px 0 0 -134px;
+  top: 56%;
+  width: 330px;
+  height: 412px;
   transform-style: preserve-3d;
   cursor: pointer;
   transition:
@@ -271,7 +282,7 @@ watch(
   right: 0;
   text-align: center;
   font-family: var(--font-title);
-  font-size: 14px;
+  font-size: 17.5px;
   letter-spacing: 0.32em;
   text-indent: 0.32em;
   color: var(--ink-faint);
@@ -299,7 +310,7 @@ watch(
   bottom: 9px;
   right: 11px;
   font-family: var(--font-title);
-  font-size: 12px;
+  font-size: 19.5px;
   color: var(--paper-light);
   background: var(--cinnabar);
   padding: 1px 5px;
@@ -324,7 +335,7 @@ watch(
 .timeline {
   position: absolute;
   left: 50%;
-  bottom: 34px;
+  bottom: 22px;
   transform: translateX(-50%);
   display: flex;
   align-items: flex-end;
@@ -369,7 +380,7 @@ watch(
 
 .tick-label {
   font-family: var(--font-title);
-  font-size: 15px;
+  font-size: 19.5px;
   letter-spacing: 0.16em;
   color: var(--ink);
   white-space: nowrap;
@@ -381,7 +392,7 @@ watch(
 
 .nav {
   position: absolute;
-  top: 44%;
+  top: 50%;
   transform: translateY(-50%);
   width: 44px;
   height: 44px;

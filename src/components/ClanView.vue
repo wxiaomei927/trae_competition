@@ -163,7 +163,7 @@ watch(active, loadClan, { immediate: true })
 }
 
 .clan-sub {
-  font-size: 13px;
+  font-size: 18.5px;
   color: var(--ink-faint);
   margin-top: 4px;
 }
@@ -179,7 +179,7 @@ watch(active, loadClan, { immediate: true })
 
 .ct {
   font-family: var(--font-title);
-  font-size: 14.5px;
+  font-size: 17.5px;
   color: var(--ink-soft);
   border: 1px solid var(--line-soft);
   padding: 4px 11px;
@@ -201,7 +201,7 @@ watch(active, loadClan, { immediate: true })
 }
 
 .ct-n {
-  font-size: 10.5px;
+  font-size: 17.5px;
   opacity: 0.7;
 }
 
@@ -272,24 +272,24 @@ watch(active, loadClan, { immediate: true })
 
 .nl-name {
   font-family: var(--font-title);
-  font-size: 16px;
+  font-size: 17.5px;
   color: var(--cinnabar);
   letter-spacing: 0.12em;
 }
 
 .nl-mean {
-  font-size: 12px;
+  font-size: 19.5px;
   color: var(--ink-faint);
 }
 
 .nl-char {
   font-family: var(--font-title);
-  font-size: 15px;
+  font-size: 19.5px;
   color: var(--ink);
 }
 
 .nl-gloss {
-  font-size: 11.5px;
+  font-size: 17.5px;
   color: var(--ink-faint);
   max-width: 92px;
   text-align: center;
@@ -355,7 +355,7 @@ watch(active, loadClan, { immediate: true })
 
 .ci-note {
   font-family: var(--font-quote);
-  font-size: 15px;
+  font-size: 19.5px;
   line-height: 1.9;
   color: var(--ink-soft);
   text-align: justify;
@@ -392,7 +392,7 @@ watch(active, loadClan, { immediate: true })
 }
 
 .ci-gloss {
-  font-size: 13.5px;
+  font-size: 17.5px;
   color: var(--ink-soft);
   flex: 1;
   overflow: hidden;
@@ -401,13 +401,13 @@ watch(active, loadClan, { immediate: true })
 }
 
 .ci-modern {
-  font-size: 13px;
+  font-size: 18.5px;
   color: var(--jade);
 }
 
 .ci-tip {
   margin-top: 16px;
-  font-size: 12.5px;
+  font-size: 19.5px;
   color: var(--ink-ghost);
 }
 </style>

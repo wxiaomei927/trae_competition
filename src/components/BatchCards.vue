@@ -211,7 +211,7 @@ function confirm() {
 }
 
 .bc-sub {
-  font-size: 13px;
+  font-size: 18.5px;
   color: var(--ink-faint);
   margin-top: 4px;
 }
@@ -248,14 +248,14 @@ function confirm() {
 }
 
 .bc-count {
-  font-size: 13.5px;
+  font-size: 17.5px;
   color: var(--ink-faint);
   margin-bottom: 12px;
 }
 
 .bc-count b {
   font-family: var(--font-title);
-  font-size: 18px;
+  font-size: 19.5px;
   color: var(--cinnabar);
 }
 
@@ -315,7 +315,7 @@ function confirm() {
   border-radius: 50%;
   display: grid;
   place-items: center;
-  font-size: 18px;
+  font-size: 19.5px;
   color: var(--ink-soft);
   transition: all 0.24s ease;
 }
@@ -332,7 +332,7 @@ function confirm() {
 
 .bc-pos {
   font-family: var(--font-title);
-  font-size: 15px;
+  font-size: 19.5px;
   color: var(--ink-soft);
   letter-spacing: 0.1em;
   min-width: 52px;
@@ -362,7 +362,7 @@ function confirm() {
   place-items: center;
   background: rgba(250, 246, 238, 0.55);
   font-family: var(--font-title);
-  font-size: 15px;
+  font-size: 19.5px;
   color: var(--ink-faint);
   letter-spacing: 0.2em;
 }
@@ -375,7 +375,7 @@ function confirm() {
 
 .bc-act {
   font-family: var(--font-title);
-  font-size: 14.5px;
+  font-size: 17.5px;
   letter-spacing: 0.1em;
   color: var(--ink-soft);
   border: 1px solid var(--line);
@@ -399,7 +399,7 @@ function confirm() {
   display: grid;
   place-items: center;
   font-family: var(--font-title);
-  font-size: 15px;
+  font-size: 19.5px;
   color: var(--ink-ghost);
   letter-spacing: 0.12em;
 }

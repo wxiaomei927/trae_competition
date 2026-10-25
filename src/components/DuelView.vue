@@ -198,7 +198,7 @@ const compare = computed(() => {
 }
 
 .duel-sub {
-  font-size: 13px;
+  font-size: 18.5px;
   color: var(--ink-faint);
   margin-top: 4px;
 }
@@ -206,7 +206,7 @@ const compare = computed(() => {
 .swap {
   margin-left: auto;
   font-family: var(--font-title);
-  font-size: 14px;
+  font-size: 17.5px;
   letter-spacing: 0.1em;
   color: var(--ink-soft);
   border: 1px solid var(--line);
@@ -237,7 +237,7 @@ const compare = computed(() => {
 
 .dp-tag {
   font-family: var(--font-title);
-  font-size: 13px;
+  font-size: 18.5px;
   color: var(--paper-light);
   background: var(--ink);
   width: 24px;
@@ -253,7 +253,7 @@ const compare = computed(() => {
 
 .dp-select {
   font-family: var(--font-title);
-  font-size: 18px;
+  font-size: 19.5px;
   color: var(--ink);
   border: 1px solid var(--line);
   background: rgba(250, 246, 238, 0.7);
@@ -263,7 +263,7 @@ const compare = computed(() => {
 
 .dp-vs {
   font-family: var(--font-title);
-  font-size: 15px;
+  font-size: 19.5px;
   color: var(--ink-ghost);
 }
 
@@ -296,25 +296,24 @@ const compare = computed(() => {
 }
 
 .gs-item {
-  width: 104px;
+  width: 116px;
   text-align: center;
 }
 
 .gs-item img {
   width: 100%;
-  height: 104px;
+  height: 116px;
   object-fit: contain;
   mix-blend-mode: multiply;
-  filter: contrast(1.2) brightness(0.74);
-  background: rgba(252, 249, 242, 0.55);
-  border: 1px solid var(--line-soft);
-  padding: 6px;
+  filter: contrast(1.3) brightness(0.62);
+  border-bottom: 1px solid var(--line-soft);
+  padding: 8px;
 }
 
 .gs-item span {
   display: block;
   font-family: var(--font-title);
-  font-size: 13px;
+  font-size: 18.5px;
   color: var(--ink-faint);
   letter-spacing: 0.08em;
   margin-top: 5px;
@@ -347,13 +346,13 @@ const compare = computed(() => {
 
 .td {
   padding: 11px 14px;
-  font-size: 14.5px;
+  font-size: 17.5px;
   color: var(--ink-soft);
   line-height: 1.7;
 }
 
 .td.dim {
-  font-size: 12.5px;
+  font-size: 19.5px;
   color: var(--ink-faint);
   letter-spacing: 0.1em;
   background: rgba(35, 32, 28, 0.02);
@@ -377,7 +376,7 @@ const compare = computed(() => {
 
 .td.num {
   font-family: var(--font-title);
-  font-size: 17px;
+  font-size: 18.5px;
   color: var(--cinnabar);
   text-align: center;
 }

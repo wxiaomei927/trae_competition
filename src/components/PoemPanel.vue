@@ -100,7 +100,7 @@ function speak(text: string) {
 }
 
 .poem-style {
-  font-size: 11px;
+  font-size: 17.5px;
   color: var(--ink-ghost);
   border: 1px solid var(--line-soft);
   padding: 0 5px;
@@ -115,7 +115,7 @@ function speak(text: string) {
 
 .poem-text {
   font-family: var(--font-quote);
-  font-size: 16px;
+  font-size: 17.5px;
   color: var(--ink);
   line-height: 1.75;
 }
@@ -128,7 +128,7 @@ function speak(text: string) {
 }
 
 .poem-act {
-  font-size: 12.5px;
+  font-size: 19.5px;
   color: var(--ink-faint);
   border: 1px solid var(--line);
   padding: 2px 10px;
@@ -147,7 +147,7 @@ function speak(text: string) {
 }
 
 .poem-src {
-  font-size: 11.5px;
+  font-size: 17.5px;
   color: var(--ink-ghost);
 }
 </style>

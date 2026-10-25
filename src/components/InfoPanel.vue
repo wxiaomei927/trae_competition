@@ -59,6 +59,9 @@ const toneName = computed(() => {
 const speaking = ref(false)
 const copied = ref(false)
 
+/** 面板分栏：形音（构形+读音）/ 义（义项+故事+用例+字题） */
+const tab = ref<'form' | 'meaning'>('form')
+
 function speak() {
   if (!props.analysis?.narration) return
   if (speaking.value) {
@@ -110,10 +113,17 @@ async function copyNarration() {
         <p class="analysis faint" v-else>该字的构形解析待补充。</p>
       </header>
 
+      <!-- 分栏 -->
       <div class="rule"></div>
 
+      <!-- 分栏 -->
+      <nav class="panel-tabs">
+        <button class="pt" :class="{ on: tab === 'form' }" @click="tab = 'form'">形 · 音</button>
+        <button class="pt" :class="{ on: tab === 'meaning' }" @click="tab = 'meaning'">义 · 故事</button>
+      </nav>
+
       <!-- 读音 -->
-      <section class="sec">
+      <section class="sec" v-show="tab === 'form'">
         <h3 class="sec-title">读音流变</h3>
         <div class="phon-list">
           <div class="phon" v-for="p in phonetics" :key="p.seq">
@@ -138,7 +148,7 @@ async function copyNarration() {
       <div class="rule"></div>
 
       <!-- 义项 -->
-      <section class="sec">
+      <section class="sec" v-show="tab === 'meaning'">
         <h3 class="sec-title">义项时间轴</h3>
         <div class="timeline">
           <article class="mean" v-for="m in meanings" :key="m.seq">
@@ -167,7 +177,7 @@ async function copyNarration() {
       <div class="rule"></div>
 
       <!-- 60 秒故事 -->
-      <section class="sec" v-if="analysis?.narration">
+      <section class="sec" v-show="tab === 'meaning'" v-if="analysis?.narration">
         <h3 class="sec-title">六十秒故事</h3>
         <div class="narration">
           <p class="narr-text">{{ analysis.narration }}</p>
@@ -190,7 +200,7 @@ async function copyNarration() {
       <div class="rule"></div>
 
       <!-- 生活例句 -->
-      <section class="sec" v-if="analysis?.lifeExamples?.length">
+      <section class="sec" v-show="tab === 'meaning'" v-if="analysis?.lifeExamples?.length">
         <h3 class="sec-title">今世用例</h3>
         <div class="ex-list">
           <div class="ex" v-for="(e, i) in analysis.lifeExamples" :key="i">
@@ -204,12 +214,14 @@ async function copyNarration() {
       <div class="rule"></div>
 
       <!-- 字题 -->
-      <PoemPanel :char="char" />
+      <div v-show="tab === 'meaning'">
+        <PoemPanel :char="char" />
+      </div>
 
       <div class="rule"></div>
 
       <!-- 部件 -->
-      <section class="sec" v-if="analysis?.parts?.length">
+      <section class="sec" v-show="tab === 'form'" v-if="analysis?.parts?.length">
         <h3 class="sec-title">部件</h3>
         <div class="parts">
           <span class="part" v-for="(p, i) in analysis.parts" :key="i">
@@ -238,7 +250,35 @@ async function copyNarration() {
 .panel-scroll {
   flex: 1;
   overflow-y: auto;
-  padding: 30px 32px 48px;
+  padding: 26px 30px 44px;
+}
+
+/* 分栏 */
+.panel-tabs {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 22px;
+  border-bottom: 1px solid var(--line-soft);
+  padding-bottom: 12px;
+}
+
+.pt {
+  font-family: var(--font-title);
+  font-size: 16px;
+  letter-spacing: 0.16em;
+  color: var(--ink-faint);
+  padding: 5px 14px;
+  border-radius: 2px;
+  transition: all 0.26s ease;
+}
+
+.pt:hover {
+  color: var(--ink);
+}
+
+.pt.on {
+  color: var(--paper-light);
+  background: var(--ink);
 }
 
 .head-row {
@@ -269,7 +309,7 @@ async function copyNarration() {
 }
 
 .method-label {
-  font-size: 13px;
+  font-size: 18.5px;
   color: var(--ink-faint);
   letter-spacing: 0.16em;
 }
@@ -286,7 +326,7 @@ async function copyNarration() {
 }
 
 .method-note {
-  font-size: 13px;
+  font-size: 18.5px;
   color: var(--ink-faint);
   border: 1px solid var(--line);
   padding: 1px 7px;
@@ -294,7 +334,7 @@ async function copyNarration() {
 
 .analysis {
   margin-top: 16px;
-  font-size: 15.5px;
+  font-size: 18.5px;
   color: var(--ink-soft);
   line-height: 1.85;
   text-align: justify;
@@ -345,7 +385,7 @@ async function copyNarration() {
 }
 
 .fanqie {
-  font-size: 15px;
+  font-size: 19.5px;
   color: var(--ink-soft);
   letter-spacing: 0.08em;
 }
@@ -354,7 +394,7 @@ async function copyNarration() {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 3px 14px;
-  font-size: 13.5px;
+  font-size: 17.5px;
   color: var(--ink-soft);
 }
 
@@ -362,25 +402,25 @@ async function copyNarration() {
   font-style: normal;
   color: var(--ink-ghost);
   margin-right: 6px;
-  font-size: 12.5px;
+  font-size: 19.5px;
 }
 
 .phon-ref {
   margin-top: 5px;
-  font-size: 13.5px;
+  font-size: 17.5px;
   color: var(--jade);
 }
 
 .phon-note {
   margin-top: 4px;
-  font-size: 12.5px;
+  font-size: 19.5px;
   color: var(--ink-faint);
   line-height: 1.6;
 }
 
 .tone-hint {
   margin-top: 12px;
-  font-size: 13px;
+  font-size: 18.5px;
   color: var(--ink-faint);
 }
 
@@ -445,7 +485,7 @@ async function copyNarration() {
 }
 
 .mean-type {
-  font-size: 12.5px;
+  font-size: 19.5px;
   letter-spacing: 0.12em;
   padding: 1px 8px;
   border: 1px solid var(--line);
@@ -463,12 +503,12 @@ async function copyNarration() {
 }
 
 .mean-era {
-  font-size: 13px;
+  font-size: 18.5px;
   color: var(--ink-faint);
 }
 
 .mean-gloss {
-  font-size: 16.5px;
+  font-size: 19.5px;
   color: var(--ink);
   line-height: 1.7;
   margin-bottom: 7px;
@@ -482,7 +522,7 @@ async function copyNarration() {
 
 .quote-text {
   font-family: var(--font-quote);
-  font-size: 16px;
+  font-size: 17.5px;
   line-height: 1.85;
   color: var(--ink-soft);
 }
@@ -490,14 +530,14 @@ async function copyNarration() {
 .quote-src {
   display: block;
   font-style: normal;
-  font-size: 13px;
+  font-size: 18.5px;
   color: var(--ink-faint);
   margin-top: 5px;
   letter-spacing: 0.06em;
 }
 
 .quote-trans {
-  font-size: 14px;
+  font-size: 17.5px;
   color: var(--ink-faint);
   line-height: 1.75;
   padding-left: 15px;
@@ -505,13 +545,13 @@ async function copyNarration() {
 
 .mean-note {
   margin-top: 6px;
-  font-size: 12.5px;
+  font-size: 19.5px;
   color: var(--ink-faint);
   line-height: 1.6;
 }
 
 .empty {
-  font-size: 14px;
+  font-size: 17.5px;
   color: var(--ink-ghost);
 }
 
@@ -524,7 +564,7 @@ async function copyNarration() {
 
 .narr-text {
   font-family: var(--font-quote);
-  font-size: 15.5px;
+  font-size: 18.5px;
   line-height: 2;
   color: var(--ink-soft);
   text-align: justify;
@@ -540,12 +580,12 @@ async function copyNarration() {
 }
 
 .narr-sec {
-  font-size: 13px;
+  font-size: 18.5px;
   color: var(--ink-faint);
 }
 
 .ai-tag {
-  font-size: 11.5px;
+  font-size: 17.5px;
   color: var(--cinnabar);
   border: 1px solid rgba(180, 67, 47, 0.34);
   padding: 1px 7px;
@@ -559,7 +599,7 @@ async function copyNarration() {
 }
 
 .narr-btn {
-  font-size: 12.5px;
+  font-size: 19.5px;
   color: var(--ink-faint);
   border: 1px solid var(--line);
   padding: 2px 9px;
@@ -579,7 +619,7 @@ async function copyNarration() {
 
 .narr-src {
   margin-top: 9px;
-  font-size: 12px;
+  font-size: 19.5px;
   color: var(--ink-ghost);
   line-height: 1.6;
 }
@@ -596,13 +636,13 @@ async function copyNarration() {
 
 .ex-text {
   font-family: var(--font-quote);
-  font-size: 16px;
+  font-size: 17.5px;
   color: var(--ink);
   line-height: 1.7;
 }
 
 .ex-tip {
-  font-size: 13px;
+  font-size: 18.5px;
   color: var(--cinnabar-soft);
   margin-top: 3px;
   line-height: 1.6;
@@ -610,7 +650,7 @@ async function copyNarration() {
 
 .ai-note {
   margin-top: 9px;
-  font-size: 12px;
+  font-size: 19.5px;
   color: var(--ink-ghost);
 }
 
@@ -623,7 +663,7 @@ async function copyNarration() {
 
 .part {
   font-family: var(--font-title);
-  font-size: 17px;
+  font-size: 18.5px;
   color: var(--ink);
   border: 1px solid var(--line);
   padding: 3px 12px;
@@ -635,7 +675,7 @@ async function copyNarration() {
 .part i {
   font-style: normal;
   font-family: var(--font-body);
-  font-size: 12.5px;
+  font-size: 19.5px;
   color: var(--ink-faint);
 }
 </style>

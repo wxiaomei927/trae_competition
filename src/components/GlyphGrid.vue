@@ -71,7 +71,7 @@ const completeCount = computed(() => props.list.filter(c => c.frameCount >= 4).l
 }
 
 .f {
-  font-size: 13.5px;
+  font-size: 17.5px;
   color: var(--ink-faint);
   border: 1px solid var(--line);
   padding: 5px 14px;
@@ -137,7 +137,7 @@ const completeCount = computed(() => props.list.filter(c => c.frameCount >= 4).l
 }
 
 .cell-gloss {
-  font-size: 12px;
+  font-size: 19.5px;
   color: var(--ink-faint);
   text-align: center;
   line-height: 1.45;
@@ -154,7 +154,7 @@ const completeCount = computed(() => props.list.filter(c => c.frameCount >= 4).l
 
 .tag {
   font-style: normal;
-  font-size: 10.5px;
+  font-size: 17.5px;
   color: var(--ink-ghost);
   border: 1px solid var(--line-soft);
   padding: 0 5px;

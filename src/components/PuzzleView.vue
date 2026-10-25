@@ -175,7 +175,7 @@ nextQuestion()
 }
 
 .pz-sub {
-  font-size: 13.5px;
+  font-size: 17.5px;
   color: var(--ink-faint);
   margin-top: 5px;
 }
@@ -198,7 +198,7 @@ nextQuestion()
 .pz-score i {
   font-style: normal;
   font-family: var(--font-body);
-  font-size: 11.5px;
+  font-size: 17.5px;
   color: var(--ink-faint);
   letter-spacing: 0.12em;
 }
@@ -250,7 +250,7 @@ nextQuestion()
 
 .pz-era {
   font-family: var(--font-title);
-  font-size: 14px;
+  font-size: 17.5px;
   letter-spacing: 0.24em;
   color: var(--ink-faint);
   margin-top: 12px;
@@ -300,7 +300,7 @@ nextQuestion()
 
 .pz-hint {
   margin-top: 16px;
-  font-size: 14.5px;
+  font-size: 17.5px;
   color: var(--ink-soft);
   border-left: 2px solid var(--gold);
   padding: 7px 0 7px 13px;
@@ -315,7 +315,7 @@ nextQuestion()
 
 .act {
   font-family: var(--font-title);
-  font-size: 15px;
+  font-size: 19.5px;
   letter-spacing: 0.12em;
   color: var(--ink-soft);
   border: 1px solid var(--line);
@@ -338,7 +338,7 @@ nextQuestion()
   margin-top: 18px;
   padding-top: 15px;
   border-top: 1px dashed var(--line-soft);
-  font-size: 14.5px;
+  font-size: 17.5px;
   color: var(--ink-soft);
   line-height: 1.75;
 }
@@ -346,7 +346,7 @@ nextQuestion()
 .link {
   display: block;
   margin-top: 8px;
-  font-size: 14px;
+  font-size: 17.5px;
   color: var(--cinnabar);
   border-bottom: 1px solid rgba(180, 67, 47, 0.3);
   padding-bottom: 1px;

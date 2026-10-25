@@ -68,7 +68,7 @@ function partStyle(pos: keyof typeof PART_TRANSFORM, i: number, total: number) {
   if (!exploded.value) {
     // 合体态：部件隐去，由背后的整字幽灵承担显示
     return {
-      transform: `translate3d(0, 0, 0) scale(0.82)`,
+      transform: `translate3d(-50%, -50%, 0) scale(0.82)`,
       opacity: 0,
       zIndex: 10 + i,
     }
@@ -76,7 +76,7 @@ function partStyle(pos: keyof typeof PART_TRANSFORM, i: number, total: number) {
   // 拆解态：按位置散开
   const dir = total > 2 && pos === 'left' ? -1 : 1
   return {
-    transform: `translate3d(${t.x * dir}px, ${t.y}px, ${i * 40}px) scale(${t.scale})`,
+    transform: `translate3d(calc(-50% + ${t.x * dir}px), calc(-50% + ${t.y}px), ${i * 40}px) scale(${t.scale})`,
     opacity: 1,
     zIndex: 10 + i,
   }
@@ -94,13 +94,13 @@ const isSingle = computed(() => (dec.value?.parts.length ?? 0) === 1)
 const partFont = computed(() => {
   const parts = dec.value?.parts ?? []
   const n = parts.length
-  if (n >= 3) return 150
+  if (n >= 3) return 190
   if (n === 2) {
     // 上下结构需要更紧凑，否则舞台装不下
     const vertical = parts[0].pos === 'top' || parts[0].pos === 'bottom'
-    return vertical ? 158 : 208
+    return vertical ? 186 : 248
   }
-  return 268
+  return 300
 })
 </script>
 
@@ -108,8 +108,8 @@ const partFont = computed(() => {
   <div class="forge">
     <header class="forge-head">
       <div>
-        <h3 class="forge-title">部件工坊</h3>
-        <p class="forge-sub">拆一个字，看它由哪些部件构成</p>
+        <h3 class="forge-title">拆字工坊</h3>
+        <p class="forge-sub">把一个字拆开，看它由哪些部件构成</p>
       </div>
       <div class="forge-pick">
         <button
@@ -250,7 +250,7 @@ const partFont = computed(() => {
 }
 
 .forge-sub {
-  font-size: 13px;
+  font-size: 18.5px;
   color: var(--ink-faint);
   margin-top: 4px;
 }
@@ -266,7 +266,7 @@ const partFont = computed(() => {
 
 .fp {
   font-family: var(--font-title);
-  font-size: 18px;
+  font-size: 19.5px;
   color: var(--ink-soft);
   border: 1px solid var(--line-soft);
   padding: 3px 9px;
@@ -310,7 +310,6 @@ const partFont = computed(() => {
   place-items: center;
   perspective: 1200px;
   overflow: hidden;
-  padding-bottom: 40px;
 }
 
 .stage-glow {
@@ -400,7 +399,8 @@ const partFont = computed(() => {
 .parts {
   position: relative;
   width: 620px;
-  height: 520px;
+  height: 480px;
+  margin-top: -50px;
   transform-style: preserve-3d;
   display: grid;
   place-items: center;
@@ -454,7 +454,7 @@ const partFont = computed(() => {
 }
 
 .part-label {
-  font-size: 14px;
+  font-size: 17.5px;
   color: var(--ink-soft);
   letter-spacing: 0.08em;
   white-space: nowrap;
@@ -469,7 +469,7 @@ const partFont = computed(() => {
   left: 50%;
   transform: translateX(-50%);
   font-family: var(--font-title);
-  font-size: 15px;
+  font-size: 19.5px;
   color: var(--ink-faint);
   letter-spacing: 0.12em;
 }
@@ -484,7 +484,7 @@ const partFont = computed(() => {
   bottom: 34px;
   left: 50%;
   transform: translateX(-50%);
-  font-size: 13.5px;
+  font-size: 17.5px;
   color: var(--ink-ghost);
 }
 
@@ -525,7 +525,7 @@ const partFont = computed(() => {
 }
 
 .fi-label {
-  font-size: 12px;
+  font-size: 19.5px;
   color: var(--ink-faint);
   letter-spacing: 0.14em;
 }
@@ -538,7 +538,7 @@ const partFont = computed(() => {
 }
 
 .fi-note {
-  font-size: 12px;
+  font-size: 19.5px;
   color: var(--ink-faint);
   border: 1px solid var(--line);
   padding: 0 6px;
@@ -547,7 +547,7 @@ const partFont = computed(() => {
 .fi-lib {
   display: inline-block;
   margin-top: 7px;
-  font-size: 11.5px;
+  font-size: 17.5px;
   color: var(--jade);
   border: 1px solid rgba(90, 122, 106, 0.32);
   padding: 0 7px;
@@ -560,7 +560,7 @@ const partFont = computed(() => {
 
 .fi-gloss {
   font-family: var(--font-quote);
-  font-size: 15.5px;
+  font-size: 18.5px;
   line-height: 1.9;
   color: var(--ink-soft);
   text-align: justify;
@@ -592,7 +592,7 @@ const partFont = computed(() => {
 }
 
 .fp-note {
-  font-size: 13.5px;
+  font-size: 17.5px;
   color: var(--ink-faint);
 }
 
@@ -604,11 +604,12 @@ const partFont = computed(() => {
 
 .fa {
   font-family: var(--font-title);
-  font-size: 15px;
-  letter-spacing: 0.12em;
+  font-size: 17.5px;
+  letter-spacing: 0.06em;
   color: var(--ink-soft);
   border: 1px solid var(--line);
-  padding: 7px 18px;
+  padding: 8px 16px;
+  white-space: nowrap;
   border-radius: 2px;
   transition: all 0.26s ease;
 }

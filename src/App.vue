@@ -61,7 +61,7 @@ const keyword = ref('')
 const batch = ref<string[]>([])
 const view = ref<'detail' | 'grid' | 'forge' | 'duel' | 'clan'>('detail')
 
-/** 按字取该字的楷书字形（部件工坊用） */
+/** 按字取该字的楷书字形（拆字工坊用） */
 async function loadGlyph(char: string): Promise<string> {
   const meta = index[char]
   if (!meta) return ''
@@ -185,7 +185,7 @@ loadPartGlyphs()
           {{ view === 'grid' ? '详情' : '字表' }}
         </button>
         <button class="tool" :class="{ on: view === 'forge' }" @click="view = view === 'forge' ? 'detail' : 'forge'">
-          部件
+          拆字
         </button>
         <button class="tool" :class="{ on: view === 'duel' }" @click="view = view === 'duel' ? 'detail' : 'duel'">
           对照
@@ -213,7 +213,7 @@ loadPartGlyphs()
         <GlyphGrid :list="list as any" :current="currentChar" @pick="pick" />
       </section>
 
-      <!-- 部件工坊 -->
+      <!-- 拆字工坊 -->
       <section class="full-view" v-else-if="view === 'forge'">
         <ForgeView
           :current="currentChar"
@@ -333,7 +333,7 @@ loadPartGlyphs()
 }
 
 .brand-sub {
-  font-size: 13px;
+  font-size: 18.5px;
   color: var(--ink-faint);
   letter-spacing: 0.18em;
 }
@@ -350,7 +350,7 @@ loadPartGlyphs()
   border: 1px solid var(--line);
   border-radius: 2px;
   background: rgba(250, 246, 238, 0.6);
-  font-size: 15px;
+  font-size: 19.5px;
   transition: border-color 0.3s ease;
 }
 
@@ -360,7 +360,7 @@ loadPartGlyphs()
 
 .search-input::placeholder {
   color: var(--ink-ghost);
-  font-size: 14px;
+  font-size: 17.5px;
 }
 
 .dropdown {
@@ -402,7 +402,7 @@ loadPartGlyphs()
 }
 
 .drop-gloss {
-  font-size: 13px;
+  font-size: 18.5px;
   color: var(--ink-faint);
   overflow: hidden;
   text-overflow: ellipsis;
@@ -411,7 +411,7 @@ loadPartGlyphs()
 }
 
 .drop-era {
-  font-size: 11.5px;
+  font-size: 17.5px;
   color: var(--ink-ghost);
   flex-shrink: 0;
 }
@@ -424,7 +424,7 @@ loadPartGlyphs()
 
 .tool {
   font-family: var(--font-title);
-  font-size: 14.5px;
+  font-size: 17.5px;
   letter-spacing: 0.12em;
   color: var(--ink-soft);
   border: 1px solid var(--line);
@@ -484,7 +484,7 @@ loadPartGlyphs()
   top: 44%;
   transform: translate(-50%, -50%);
   font-family: var(--font-title);
-  font-size: 15px;
+  font-size: 19.5px;
   color: var(--ink-faint);
   letter-spacing: 0.2em;
 }
@@ -501,7 +501,7 @@ loadPartGlyphs()
 .prologue-era {
   display: inline-block;
   font-family: var(--font-title);
-  font-size: 12.5px;
+  font-size: 19.5px;
   letter-spacing: 0.26em;
   color: var(--cinnabar);
   border: 1px solid rgba(180, 67, 47, 0.28);
@@ -511,7 +511,7 @@ loadPartGlyphs()
 
 .prologue-text {
   font-family: var(--font-title);
-  font-size: 15px;
+  font-size: 19.5px;
   color: var(--ink-faint);
   letter-spacing: 0.05em;
   line-height: 1.75;
@@ -523,7 +523,7 @@ loadPartGlyphs()
 }
 
 .right {
-  width: 424px;
+  width: 500px;
   flex-shrink: 0;
 }
 
@@ -555,7 +555,7 @@ loadPartGlyphs()
 }
 
 .ov-sub {
-  font-size: 14px;
+  font-size: 17.5px;
   color: var(--ink-faint);
   letter-spacing: 0.04em;
 }
