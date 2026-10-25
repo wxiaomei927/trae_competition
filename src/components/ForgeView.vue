@@ -92,10 +92,15 @@ function linkFrom(pos: keyof typeof PART_TRANSFORM) {
 const isSingle = computed(() => (dec.value?.parts.length ?? 0) === 1)
 
 const partFont = computed(() => {
-  const n = dec.value?.parts.length ?? 2
-  if (n >= 3) return 108
-  if (n === 2) return 124
-  return 168
+  const parts = dec.value?.parts ?? []
+  const n = parts.length
+  if (n >= 3) return 150
+  if (n === 2) {
+    // 上下结构需要更紧凑，否则舞台装不下
+    const vertical = parts[0].pos === 'top' || parts[0].pos === 'bottom'
+    return vertical ? 158 : 208
+  }
+  return 268
 })
 </script>
 
@@ -131,7 +136,7 @@ const partFont = computed(() => {
         </div>
 
         <!-- 拆解态：部件之间的连线 -->
-        <svg class="links" :class="{ show: exploded && (dec?.parts.length ?? 0) > 1 }" viewBox="-200 -150 400 300">
+        <svg class="links" :class="{ show: exploded && (dec?.parts.length ?? 0) > 1 }" viewBox="-310 -260 620 520">
           <line
             v-for="(p, i) in dec?.parts ?? []"
             :key="'l' + i"
@@ -305,19 +310,20 @@ const partFont = computed(() => {
   place-items: center;
   perspective: 1200px;
   overflow: hidden;
+  padding-bottom: 40px;
 }
 
 .stage-glow {
   position: absolute;
   left: 50%;
   top: 50%;
-  width: 480px;
-  height: 480px;
+  width: 680px;
+  height: 680px;
   transform: translate(-50%, -50%);
   background: radial-gradient(
     circle,
-    rgba(233, 200, 130, 0.16) 0%,
-    rgba(226, 186, 110, 0.07) 40%,
+    rgba(233, 200, 130, 0.17) 0%,
+    rgba(226, 186, 110, 0.075) 38%,
     transparent 70%
   );
   transition: opacity 0.6s ease;
@@ -342,8 +348,8 @@ const partFont = computed(() => {
   pointer-events: none;
   transition: opacity 0.6s ease;
   z-index: 1;
-  width: 260px;
-  height: 260px;
+  width: 340px;
+  height: 340px;
   display: grid;
   place-items: center;
 }
@@ -370,9 +376,9 @@ const partFont = computed(() => {
   position: absolute;
   left: 50%;
   top: 50%;
-  width: 400px;
-  height: 300px;
-  margin: -150px 0 0 -200px;
+  width: 620px;
+  height: 520px;
+  margin: -260px 0 0 -310px;
   opacity: 0;
   transition: opacity 0.5s ease;
   pointer-events: none;
@@ -393,8 +399,8 @@ const partFont = computed(() => {
 
 .parts {
   position: relative;
-  width: 400px;
-  height: 300px;
+  width: 620px;
+  height: 520px;
   transform-style: preserve-3d;
   display: grid;
   place-items: center;
@@ -429,7 +435,6 @@ const partFont = computed(() => {
   display: grid;
   place-items: center;
 }
-
 .part-img {
   width: 100%;
   height: 100%;
@@ -449,10 +454,13 @@ const partFont = computed(() => {
 }
 
 .part-label {
-  font-size: 11.5px;
-  color: var(--ink-faint);
+  font-size: 14px;
+  color: var(--ink-soft);
   letter-spacing: 0.08em;
   white-space: nowrap;
+  background: rgba(250, 246, 238, 0.78);
+  padding: 1px 8px;
+  border-bottom: 1px solid var(--line);
 }
 
 .combo-hint {

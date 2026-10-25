@@ -311,9 +311,9 @@ export const DECOMPOSITIONS: Record<string, Decomposition> = {
 
 /** 部件位置对应的 CSS 变换 */
 export const PART_TRANSFORM: Record<Part['pos'], { x: number; y: number; scale: number }> = {
-  left: { x: -118, y: 0, scale: 0.5 },
-  right: { x: 118, y: 0, scale: 0.5 },
-  top: { x: 0, y: -112, scale: 0.5 },
-  bottom: { x: 0, y: 112, scale: 0.5 },
+  left: { x: -170, y: 0, scale: 0.82 },
+  right: { x: 170, y: 0, scale: 0.82 },
+  top: { x: 0, y: -120, scale: 0.82 },
+  bottom: { x: 0, y: 120, scale: 0.82 },
   center: { x: 0, y: 0, scale: 1 },
 }

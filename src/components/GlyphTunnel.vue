@@ -16,7 +16,7 @@ const emit = defineEmits<{ (e: 'update:modelValue', v: number): void }>()
 
 const DEPTH = 340          // 相邻帧 Z 轴间距
 const BASE_Z = 150         // 当前帧 Z 基准
-const ARC = 168            // 横向展开量
+const ARC = 186            // 横向展开量
 const PERSPECTIVE = 1500   // 与 CSS perspective 保持一致
 
 const pointer = ref({ x: 0, y: 0 })
@@ -201,9 +201,9 @@ watch(
   position: absolute;
   left: 50%;
   top: 44%;
-  width: 214px;
-  height: 268px;
-  margin: -134px 0 0 -107px;
+  width: 268px;
+  height: 336px;
+  margin: -168px 0 0 -134px;
   transform-style: preserve-3d;
   cursor: pointer;
   transition:

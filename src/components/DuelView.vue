@@ -271,22 +271,22 @@ const compare = computed(() => {
 .glyphs {
   display: flex;
   align-items: flex-start;
-  gap: 22px;
+  gap: 28px;
   justify-content: center;
-  margin-bottom: 30px;
+  margin-bottom: 34px;
 }
 
 .gs {
   flex: 1;
-  max-width: 480px;
+  max-width: 620px;
 }
 
 .gs-title {
   font-family: var(--font-title);
-  font-size: 34px;
+  font-size: 46px;
   color: var(--ink);
   text-align: center;
-  margin-bottom: 12px;
+  margin-bottom: 14px;
 }
 
 .gs-strip {
@@ -296,28 +296,28 @@ const compare = computed(() => {
 }
 
 .gs-item {
-  width: 74px;
+  width: 104px;
   text-align: center;
 }
 
 .gs-item img {
   width: 100%;
-  height: 74px;
+  height: 104px;
   object-fit: contain;
   mix-blend-mode: multiply;
   filter: contrast(1.2) brightness(0.74);
   background: rgba(252, 249, 242, 0.55);
   border: 1px solid var(--line-soft);
-  padding: 4px;
+  padding: 6px;
 }
 
 .gs-item span {
   display: block;
   font-family: var(--font-title);
-  font-size: 11.5px;
+  font-size: 13px;
   color: var(--ink-faint);
   letter-spacing: 0.08em;
-  margin-top: 4px;
+  margin-top: 5px;
 }
 
 .gs-mid {
