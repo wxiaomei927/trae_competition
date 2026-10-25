@@ -106,7 +106,7 @@ const compare = computed(() => {
   <div class="duel">
     <header class="duel-head">
       <div>
-        <h3 class="duel-title">双字对决</h3>
+        <h3 class="duel-title">双字对照</h3>
         <p class="duel-sub">两个字并排，看形、音、义的异同</p>
       </div>
       <button class="swap" @click="swap">⇄ 对调</button>

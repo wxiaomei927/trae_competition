@@ -6,6 +6,8 @@ import InfoPanel from './components/InfoPanel.vue'
 import OriginCard from './components/OriginCard.vue'
 import GlyphGrid from './components/GlyphGrid.vue'
 import PuzzleView from './components/PuzzleView.vue'
+import BatchCards from './components/BatchCards.vue'
+import ClanView from './components/ClanView.vue'
 import ForgeView from './components/ForgeView.vue'
 import DuelView from './components/DuelView.vue'
 import { DECOMPOSITIONS } from './data/decomposition'
@@ -57,9 +59,9 @@ const showBatch = ref(false)
 const showPuzzle = ref(false)
 const keyword = ref('')
 const batch = ref<string[]>([])
-const view = ref<'detail' | 'grid' | 'forge' | 'duel'>('detail')
+const view = ref<'detail' | 'grid' | 'forge' | 'duel' | 'clan'>('detail')
 
-/** 按字取该字的楷书字形（造字工坊用） */
+/** 按字取该字的楷书字形（部件工坊用） */
 async function loadGlyph(char: string): Promise<string> {
   const meta = index[char]
   if (!meta) return ''
@@ -148,33 +150,7 @@ watch(
 
 loadPartGlyphs()
 
-function toggleBatch(c: string) {
-  const i = batch.value.indexOf(c)
-  if (i >= 0) batch.value.splice(i, 1)
-  else if (batch.value.length < 10) batch.value.push(c)
-}
 
-async function exportBatch() {
-  const chars = batch.value
-  if (!chars.length) return
-  const blocks: string[] = []
-  for (const c of chars) {
-    const meta = index[c]
-    const mod = await import(`./data/chars/${meta.file}.json`)
-    const e = mod.default as CharEntry
-    const a = (analysisData as any)[c]
-    blocks.push(
-      `【${c}】${e.phonetics[0]?.modern ?? ''}　${a?.method ?? ''}\n　${e.meanings[0]?.gloss ?? ''}\n　义项${e.meanings.length}条 · 读音${e.phonetics.length}个\n　${a?.analysis ?? ''}`
-    )
-  }
-  const text = `字源卡 · 生词本（${chars.length} 字）\n${'—'.repeat(26)}\n\n${blocks.join('\n\n')}\n\n由「字源 · 汉字形音义溯源」生成\n字形与书证取自公有领域文献　AI 生成内容已标注`
-  const blob = new Blob([text], { type: 'text/plain;charset=utf-8' })
-  const a = document.createElement('a')
-  a.href = URL.createObjectURL(blob)
-  a.download = `字源卡-生词本-${chars.join('')}.txt`
-  a.click()
-  URL.revokeObjectURL(a.href)
-}
 </script>
 
 <template>
@@ -209,13 +185,16 @@ async function exportBatch() {
           {{ view === 'grid' ? '详情' : '字表' }}
         </button>
         <button class="tool" :class="{ on: view === 'forge' }" @click="view = view === 'forge' ? 'detail' : 'forge'">
-          造字
+          部件
         </button>
         <button class="tool" :class="{ on: view === 'duel' }" @click="view = view === 'duel' ? 'detail' : 'duel'">
-          对决
+          对照
+        </button>
+        <button class="tool" :class="{ on: view === 'clan' }" @click="view = view === 'clan' ? 'detail' : 'clan'">
+          字族
         </button>
         <button class="tool" @click="showPuzzle = true">猜字</button>
-        <button class="tool" @click="showBatch = true">生词本</button>
+        <button class="tool" @click="showBatch = true">批量出卡</button>
         <button class="tool primary" @click="showCard = true">字源卡</button>
       </nav>
     </header>
@@ -234,7 +213,7 @@ async function exportBatch() {
         <GlyphGrid :list="list as any" :current="currentChar" @pick="pick" />
       </section>
 
-      <!-- 造字工坊 -->
+      <!-- 部件工坊 -->
       <section class="full-view" v-else-if="view === 'forge'">
         <ForgeView
           :current="currentChar"
@@ -246,7 +225,17 @@ async function exportBatch() {
         />
       </section>
 
-      <!-- 双字对决 -->
+      <!-- 字族 -->
+      <section class="full-view" v-else-if="view === 'clan'">
+        <ClanView :index="index as any" :current="currentChar" :load-glyph="loadGlyph" />
+      </section>
+
+      <!-- 字族 -->
+      <section class="full-view" v-else-if="view === 'clan'">
+        <ClanView :index="index as any" :current="currentChar" :load-glyph="loadGlyph" />
+      </section>
+
+      <!-- 双字对照 -->
       <section class="full-view" v-else-if="view === 'duel'">
         <DuelView :index="index as any" :current="currentChar" @pick="pick" />
       </section>
@@ -299,27 +288,14 @@ async function exportBatch() {
       @pick="pick"
     />
 
-    <div class="modal-mask" v-if="showBatch" @click.self="showBatch = false">
-      <div class="modal">
-        <h3 class="modal-title">生词本</h3>
-        <p class="modal-tip">勾选要批量出卡的字，最多 10 个</p>
-        <div class="batch-grid">
-          <button
-            v-for="(meta, c) in index"
-            :key="c"
-            class="batch-item"
-            :class="{ on: batch.includes(c as string) }"
-            @click="toggleBatch(c as string)"
-          >
-            {{ c }}
-          </button>
-        </div>
-        <div class="modal-foot">
-          <span class="batch-count">已选 {{ batch.length }} / 10</span>
-          <button class="do-btn" :disabled="!batch.length" @click="exportBatch">导出字源卡</button>
-        </div>
-      </div>
-    </div>
+    <!-- 批量出卡 -->
+    <BatchCards
+      v-if="showBatch"
+      :index="index as any"
+      :initial="batch"
+      @close="showBatch = false"
+      @pick="pick"
+    />
   </div>
 </template>
 
@@ -584,101 +560,4 @@ async function exportBatch() {
   letter-spacing: 0.04em;
 }
 
-.modal-mask {
-  position: fixed;
-  inset: 0;
-  background: rgba(35, 32, 28, 0.3);
-  backdrop-filter: blur(3px);
-  display: grid;
-  place-items: center;
-  z-index: 500;
-}
-
-.modal {
-  width: min(680px, 92vw);
-  max-height: 84vh;
-  background: var(--paper-light);
-  border: 1px solid var(--line);
-  box-shadow: var(--shadow-deep);
-  padding: 30px 34px;
-  display: flex;
-  flex-direction: column;
-}
-
-.modal-title {
-  font-family: var(--font-title);
-  font-size: 24px;
-  font-weight: 400;
-  letter-spacing: 0.2em;
-  color: var(--ink);
-}
-
-.modal-tip {
-  font-size: 13.5px;
-  color: var(--ink-faint);
-  margin: 7px 0 18px;
-}
-
-.batch-grid {
-  flex: 1;
-  overflow-y: auto;
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(52px, 1fr));
-  gap: 7px;
-  padding: 2px;
-}
-
-.batch-item {
-  font-family: var(--font-title);
-  font-size: 20px;
-  color: var(--ink);
-  border: 1px solid var(--line);
-  padding: 7px 0;
-  transition: all 0.22s ease;
-}
-
-.batch-item:hover {
-  border-color: var(--ink-faint);
-}
-
-.batch-item.on {
-  background: var(--cinnabar);
-  color: var(--paper-light);
-  border-color: var(--cinnabar);
-}
-
-.modal-foot {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-top: 20px;
-  padding-top: 16px;
-  border-top: 1px solid var(--line-soft);
-}
-
-.batch-count {
-  font-size: 14px;
-  color: var(--ink-faint);
-}
-
-.do-btn {
-  font-family: var(--font-title);
-  font-size: 15.5px;
-  letter-spacing: 0.14em;
-  color: var(--paper-light);
-  background: var(--cinnabar);
-  border: none;
-  padding: 9px 24px;
-  border-radius: 2px;
-  transition: opacity 0.25s ease;
-}
-
-.do-btn:disabled {
-  background: var(--ink-ghost);
-  cursor: default;
-}
-
-.do-btn:hover:not(:disabled) {
-  opacity: 0.88;
-}
 </style>

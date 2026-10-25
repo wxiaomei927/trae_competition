@@ -108,8 +108,8 @@ const partFont = computed(() => {
   <div class="forge">
     <header class="forge-head">
       <div>
-        <h3 class="forge-title">造字工坊</h3>
-        <p class="forge-sub">拆一个字，看它由哪些部件长出来</p>
+        <h3 class="forge-title">部件工坊</h3>
+        <p class="forge-sub">拆一个字，看它由哪些部件构成</p>
       </div>
       <div class="forge-pick">
         <button
