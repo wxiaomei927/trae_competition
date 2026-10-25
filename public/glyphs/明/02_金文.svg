@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="300"
+   height="300"
+   viewBox="0 0 300 300"
+   id="svg2"
+   version="1.1"
+   inkscape:version="0.91 r13725"
+   sodipodi:docname="明-bronze.svg">
+  <defs
+     id="defs4">
+    <clipPath
+       clipPathUnits="userSpaceOnUse"
+       id="clipPath4204">
+      <rect
+         style="fill:#0000ff;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+         id="rect4206"
+         width="15.451179"
+         height="21.584471"
+         x="164.41942"
+         y="794.64594" />
+    </clipPath>
+  </defs>
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="1.71"
+     inkscape:cx="150"
+     inkscape:cy="150"
+     inkscape:document-units="px"
+     inkscape:current-layer="layer1"
+     showgrid="false"
+     inkscape:window-width="1280"
+     inkscape:window-height="751"
+     inkscape:window-x="0"
+     inkscape:window-y="1"
+     inkscape:window-maximized="1"
+     units="px"
+     showguides="false" />
+  <metadata
+     id="metadata7">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(0,-752.36216)">
+    <path
+       style="fill:#000000"
+       d="m 108.15791,1033.3008 c -21.584466,-5.7091 -43.579846,-26.2058 -28.121986,-26.2058 2.86949,0 10.84098,2.8055 17.71443,6.2344 18.384316,9.1713 56.299396,4.3716 78.952676,-9.9947 22.21161,-14.08613 29.04131,-28.35962 33.84032,-70.72327 l 3.89557,-34.38864 -11.29374,-16.28399 c -11.97781,-17.27023 -64.65087,-70.83629 -76.64097,-77.94035 -3.91719,-2.3209 -17.58488,-4.21984 -30.372626,-4.21984 -12.78775,0 -23.68639,-1.74378 -24.21921,-3.87507 -1.92746,-7.70981 19.70912,-12.17548 135.013126,-27.86608 12.44794,-1.69391 14.38273,-0.73211 18.32821,9.11107 8.01276,19.99015 4.39828,153.22737 -5.37713,198.21185 -2.69,12.37881 -31.77006,40.55662 -48.18107,46.68622 -7.45952,2.7861 -19.28922,7.5369 -26.28822,10.5573 -14.37734,6.2046 -16.29139,6.2404 -37.24938,0.6969 z M 212.35685,827.87289 c -1.53302,-19.71443 -3.59134,-37.19516 -4.5741,-38.84606 -17.89088,-3.20517 -41.45337,0.35979 -56.23762,1.0641 -3.83632,0 -6.97513,1.68248 -6.97513,3.7389 0,4.99772 62.04697,69.88749 66.82571,69.88749 2.34516,0 2.70496,-13.41837 0.96114,-35.84443 z m -32.48451,-12.07984 c -3.35492,-4.04248 -2.9311,-6.51532 1.78788,-10.43174 7.2405,-6.00907 18.32983,-0.90657 20.35123,9.36416 1.57742,8.01481 -15.68266,8.8471 -22.13911,1.06758 z M 89.693414,950.83927 c -20.27639,-13.28898 -24.852,-35.79541 -12.596,-61.95699 10.19086,-21.75331 59.669276,-29.04778 81.035336,-11.94682 10.44767,8.36214 11.54261,11.30088 10.80952,29.0126 -1.26955,30.6724 -10.13103,43.65545 -34.39472,50.39218 -21.44989,5.95553 -28.73747,5.06174 -44.854136,-5.50097 z M 146.61918,936.0084 c 3.13551,-4.47661 5.70097,-15.55811 5.70097,-24.62555 0,-13.15305 -1.89147,-17.72563 -9.35525,-22.61605 -12.36322,-8.10073 -40.22387,-5.6807 -47.387496,4.1161 -6.98931,9.55845 -6.78986,38.36582 0.30652,44.2552 15.148056,12.57178 41.550206,11.98389 50.735296,-1.1297 z m -35.0922,-18.20983 c -3.07766,-4.9797 5.00822,-15.33052 11.97591,-15.33052 6.90027,0 9.97653,5.72302 7.10235,13.21307 -2.65589,6.92107 -15.24589,8.31842 -19.07826,2.11745 z"
+       id="path5173"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="ssssscsssssssssssccssssssssssssscssssccssss" />
+  </g>
+</svg>

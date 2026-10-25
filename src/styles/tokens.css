@@ -1,0 +1,152 @@
+/* ============================================================
+   字源卡 · 设计系统
+   基调：宣纸墨韵。暖宣纸底、墨色字、朱红点缀、金色光尘。
+   ============================================================ */
+
+:root {
+  /* 纸与墨 */
+  --paper: #f3ece0;
+  --paper-deep: #eae0cf;
+  --paper-light: #faf6ee;
+  --ink: #23201c;
+  --ink-soft: #4a443c;
+  --ink-faint: #8a8175;
+  --ink-ghost: #b8b0a2;
+
+  /* 点缀 */
+  --cinnabar: #b4432f;
+  --cinnabar-soft: #c9705c;
+  --gold: #c9a227;
+  --gold-light: #e8c96a;
+  --jade: #5a7a6a;
+
+  /* 字体 */
+  --font-title: "Kaiti SC", "STKaiti", "KaiTi", "楷体", serif;
+  --font-body: "FangSong", "STFangsong", "仿宋", "Fang Song", serif;
+  --font-quote: "Songti SC", "SimSun", "宋体", serif;
+  --font-ui: -apple-system, "Microsoft YaHei", "PingFang SC", sans-serif;
+
+  /* 尺度 */
+  --line: rgba(35, 32, 28, 0.14);
+  --line-soft: rgba(35, 32, 28, 0.07);
+  --shadow-lift: 0 2px 18px rgba(35, 32, 28, 0.08);
+  --shadow-deep: 0 18px 50px rgba(35, 32, 28, 0.16);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.75;
+  overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+#app {
+  height: 100vh;
+  position: relative;
+  isolation: isolate;
+}
+
+button {
+  font-family: inherit;
+  font-size: inherit;
+  color: inherit;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+input {
+  font-family: inherit;
+  color: inherit;
+  border: none;
+  outline: none;
+  background: none;
+}
+
+::selection {
+  background: rgba(180, 67, 47, 0.18);
+}
+
+/* 滚动条 —— 细，无色 */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(35, 32, 28, 0.16);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(35, 32, 28, 0.28);
+}
+
+/* ============ 通用文字 ============ */
+
+.vertical-rl {
+  writing-mode: vertical-rl;
+  text-orientation: upright;
+  letter-spacing: 0.18em;
+}
+
+.seal {
+  font-family: var(--font-title);
+  color: #fff;
+  background: var(--cinnabar);
+  padding: 0.42em 0.3em;
+  border-radius: 2px;
+  line-height: 1.15;
+  letter-spacing: 0.12em;
+  box-shadow: 0 1px 5px rgba(180, 67, 47, 0.32);
+}
+
+/* 分隔线：古籍竖栏感 */
+.rule-v {
+  width: 1px;
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    var(--line) 12%,
+    var(--line) 88%,
+    transparent
+  );
+}
+
+.fade-in {
+  animation: fadeIn 0.6s ease both;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
