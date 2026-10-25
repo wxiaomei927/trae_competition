@@ -9,3 +9,4 @@ shot*.png
 .vite/
 src/data/chars/
 src/data/characters.json
+v1-last.png
