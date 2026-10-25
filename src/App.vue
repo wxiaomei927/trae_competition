@@ -6,6 +6,9 @@ import InfoPanel from './components/InfoPanel.vue'
 import OriginCard from './components/OriginCard.vue'
 import GlyphGrid from './components/GlyphGrid.vue'
 import PuzzleView from './components/PuzzleView.vue'
+import ForgeView from './components/ForgeView.vue'
+import DuelView from './components/DuelView.vue'
+import { DECOMPOSITIONS } from './data/decomposition'
 import charsIndex from './data/chars-index.json'
 import analysisData from './data/char_analysis.json'
 
@@ -54,7 +57,52 @@ const showBatch = ref(false)
 const showPuzzle = ref(false)
 const keyword = ref('')
 const batch = ref<string[]>([])
-const view = ref<'detail' | 'grid'>('detail')
+const view = ref<'detail' | 'grid' | 'forge' | 'duel'>('detail')
+
+/** 按字取该字的楷书字形（造字工坊用） */
+async function loadGlyph(char: string): Promise<string> {
+  const meta = index[char]
+  if (!meta) return ''
+  const mod = await import(`./data/chars/${meta.file}.json`)
+  const e = mod.default as any
+  const last = e.frames[e.frames.length - 1]
+  return last?.src ?? ''
+}
+
+/** 部件字形表：部件名 → 该部件的楷书字形（取自数据集） */
+const partGlyphs = ref<Record<string, string>>({})
+/** 位图（PNG）部件名单：需反相着色才能显出朱红 */
+const rasterParts = ref<string[]>([])
+
+/** 预载所有可能用到的部件字形 */
+async function loadPartGlyphs() {
+  const names = new Set<string>()
+  for (const d of Object.values(DECOMPOSITIONS)) {
+    for (const p of d.parts) names.add(p.name)
+  }
+  const map: Record<string, string> = {}
+  const raster: string[] = []
+  await Promise.all(
+    [...names].map(async n => {
+      const meta = index[n]
+      if (!meta) return
+      try {
+        const mod = await import(`./data/chars/${meta.file}.json`)
+        const entry = mod.default as any
+        const last = entry.frames[entry.frames.length - 1]
+        if (last) {
+          map[n] = last.src
+          // 楷书帧内含 PNG base64（白底黑字），需特殊着色
+          if (last.src.includes('png')) raster.push(n)
+        }
+      } catch {
+        /* 部件不在库内，用文字表示 */
+      }
+    })
+  )
+  partGlyphs.value = map
+  rasterParts.value = raster
+}
 
 const entry = ref<CharEntry | null>(null)
 const loading = ref(false)
@@ -97,6 +145,8 @@ watch(
   },
   { immediate: true }
 )
+
+loadPartGlyphs()
 
 function toggleBatch(c: string) {
   const i = batch.value.indexOf(c)
@@ -158,6 +208,12 @@ async function exportBatch() {
         <button class="tool" :class="{ on: view === 'grid' }" @click="view = view === 'grid' ? 'detail' : 'grid'">
           {{ view === 'grid' ? '详情' : '字表' }}
         </button>
+        <button class="tool" :class="{ on: view === 'forge' }" @click="view = view === 'forge' ? 'detail' : 'forge'">
+          造字
+        </button>
+        <button class="tool" :class="{ on: view === 'duel' }" @click="view = view === 'duel' ? 'detail' : 'duel'">
+          对决
+        </button>
         <button class="tool" @click="showPuzzle = true">猜字</button>
         <button class="tool" @click="showBatch = true">生词本</button>
         <button class="tool primary" @click="showCard = true">字源卡</button>
@@ -176,6 +232,23 @@ async function exportBatch() {
           </p>
         </div>
         <GlyphGrid :list="list as any" :current="currentChar" @pick="pick" />
+      </section>
+
+      <!-- 造字工坊 -->
+      <section class="full-view" v-else-if="view === 'forge'">
+        <ForgeView
+          :current="currentChar"
+          :library-chars="Object.keys(index)"
+          :part-glyphs="partGlyphs"
+          :raster-parts="rasterParts"
+          :load-glyph="loadGlyph"
+          @pick="pick"
+        />
+      </section>
+
+      <!-- 双字对决 -->
+      <section class="full-view" v-else-if="view === 'duel'">
+        <DuelView :index="index as any" :current="currentChar" @pick="pick" />
       </section>
 
       <template v-else>
@@ -482,6 +555,14 @@ async function exportBatch() {
   flex: 1;
   overflow-y: auto;
   padding: 34px 40px 60px;
+}
+
+.full-view {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
 .ov-head {

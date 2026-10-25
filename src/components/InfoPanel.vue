@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
+import PoemPanel from './PoemPanel.vue'
 
 export interface Meaning {
   seq: number
@@ -199,6 +200,11 @@ async function copyNarration() {
         </div>
         <p class="ai-note">以上用例由 AI 生成，仅作参考</p>
       </section>
+
+      <div class="rule"></div>
+
+      <!-- 字题 -->
+      <PoemPanel :char="char" />
 
       <div class="rule"></div>
 
